@@ -1,4 +1,5 @@
 <svelte:head>
+  <link rel="icon" type="image/svg+xml" href="/logo.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Kode+Mono:wght@400..700&display=swap" rel="stylesheet">
@@ -6,12 +7,13 @@
 </svelte:head>
 
 <script>
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
+  // import svelteLogo from './assets/svelte.svg'
+  // import viteLogo from '/vite.svg'
   import DataTable from './lib/DataTable.svelte';
   import CalendarPicker from './lib/CalendarPicker.svelte';
   import { onMount } from 'svelte';
   import Papa from 'papaparse';
+  import CriteriaFilter from './lib/CriteriaFilter.svelte';
 
   let todaysDate = new Date();
     /**
@@ -30,7 +32,7 @@
     }
 
      onMount(async () => {
-        const response = await fetch('/public/live/' + formatDate(todaysDate) + '.csv');
+        const response = await fetch('/live/' + formatDate(todaysDate) + '.csv');
         const csvText = await response.text();
 
         const parseResult = Papa.parse(csvText, {
@@ -63,10 +65,10 @@
 
 <main>
   <div class="topbar">
-    <h1>CSViewer</h1>
+    <h1>CDR Logs</h1>
     <CalendarPicker />
     <p>Data e zgjedhur: {selectedDate}</p> 
-    <a href="#" class="btn">Sot</a>
+    <a href="#" class="btn"><span class="liveDot">⦿</span>Live CSV</a>
   </div>
 
   {#if jsonData.length > 0}
@@ -84,20 +86,37 @@
       gap: 20px;
     }
 
+    .liveDot{
+      color: red;
+      margin-right: 5px;
+      transition: all 250ms ease-in-out;
+    }
+
     h1{
       font-family: "Kode Mono";
       font-weight: 700;
     }
 
     .btn{
-      padding: 10px 10px;
+      padding: 5px 10px;
       border-radius: 5px;
+      border: 2px solid red;
       font-family: "Kode Mono";
       font-size: 20px;
-      font-weight: bolder;
+      font-weight: bold;
       text-align: center;
       text-decoration: none;
+      color: red;
+      background-color: white;
+      transition: all 250ms ease-in-out;
+    }
+
+    .btn:hover{
       color: white;
       background-color: red;
+    }
+
+    .btn:hover .liveDot{
+      color: white;
     }
 </style>

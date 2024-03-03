@@ -1,13 +1,13 @@
 <script lang="ts">
     import { DataHandler, Datatable, Th, ThFilter } from '@vincjo/datatables'
     import { afterUpdate } from 'svelte';
-    
+
     export let jsonData: any[] = [];
     console.log(jsonData);
 
     const handler = new DataHandler(jsonData, { rowsPerPage: 50 }); 
     const rows = handler.getRows();
-    console.log(rows);  
+    console.log(rows);
 
     afterUpdate(() => {
         handler.setRows(jsonData);

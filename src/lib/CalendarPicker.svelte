@@ -4,7 +4,7 @@
     element="#my-picker"
 >
     <div class="flatpickr" id="my-picker">
-        <input type="text" placeholder="Zgjidh daten.." data-input />
+        <input class="datePicker" type="text" placeholder="Zgjidh daten.." data-input />
     </div>
 </Flatpickr>
 
@@ -17,3 +17,11 @@
     let date = null;
     const flatpickrOptions = {};
 </script>
+
+<style>
+    .datePicker{
+        font-family: "Kode Mono";
+        font-size: 20px;
+        padding: 5px 10px;
+    }
+</style>

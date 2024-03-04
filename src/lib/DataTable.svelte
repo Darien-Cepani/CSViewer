@@ -17,7 +17,7 @@
         <thead>
             <tr>
                 <Th {handler} orderBy={(row) => row["Operator"]}>Operator</Th>
-                <Th {handler} orderBy={(row) => row["Klienti"]}>Klienti</Th>
+                <Th {handler} orderBy="">Klienti</Th>
                 <Th {handler} orderBy={(row) => row["Ora e fillimit"]}>Ora e fillimit</Th>
                 <Th {handler} orderBy={(row) => row["Ora e Mbylljes"]}>Ora e Mbylljes</Th>
                 <Th {handler} orderBy={(row) => row["Kohezgjatja"]}>Kohezgjatja</Th>

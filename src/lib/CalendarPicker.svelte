@@ -5,12 +5,12 @@
 >
     <div class="flatpickr" id="my-picker">
         <input class="datePicker" type="text" placeholder="Zgjidh daten.." data-input/>
-
+        
         <!-- svelte-ignore a11y-invalid-attribute -->
-        <a href="#" class="btn" title="load" on:click={loadToday}>
-            <span class="liveDot">⦿</span>
-            Live CSV
-        </a>
+            <a href="#" id="liveBtn" class="btn" class:active={isActive} title="load" on:click={openLive}>
+                <span class="liveDot">⦿</span>
+                Live CSV
+            </a>
     </div>
 </Flatpickr>
 
@@ -19,15 +19,24 @@
 
     import 'flatpickr/dist/flatpickr.css';
     import 'flatpickr/dist/themes/light.css';
+  import { onMount } from 'svelte';
 
     export let formattedTodays;
-    export let selectedDate = formattedTodays;
+    export let selectedDate;
+    export let formatDate
 
-    
-
-    function loadToday(){
+    function openLive() {
         selectedDate = formattedTodays;
     }
+
+    // Reactivity for class change:
+    let isActive = false;
+    $: isActive = selectedDate === formattedTodays;
+    $: selectedDate = formatDate(selectedDate);
+
+    onMount(() => {
+        isActive = selectedDate === formattedTodays;
+    });
 
     const flatpickrOptions = {
         defaultDate: formattedTodays,
@@ -69,6 +78,14 @@
     .btn:hover{
       color: white;
       background-color: red;
+    }
+    .btn.active{
+      color: white;
+      background-color: red;
+    }
+
+    .btn.active .liveDot{
+      color: white;
     }
 
     .btn:hover .liveDot{

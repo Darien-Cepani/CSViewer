@@ -6,8 +6,6 @@
 </svelte:head>
 
 <script>
-  // import svelteLogo from './assets/svelte.svg'
-  // import viteLogo from '/vite.svg'
   import DataTable from './lib/DataTable.svelte';
   import CalendarPicker from './lib/CalendarPicker.svelte';
   import { onMount } from 'svelte';
@@ -20,7 +18,7 @@
 
   $: selectedDate = formatDate(selectedDate);
 
-    function formatDate(dateInput) {
+    export function formatDate(dateInput) {
       // Handle both Date objects and string inputs
       let date;
       if (typeof dateInput === 'string') {
@@ -93,27 +91,50 @@
 <main>
   <div class="topbar">
     <h1>CDR Logs</h1>
-    <CalendarPicker {formattedTodays} bind:selectedDate={selectedDate}/>
-    <p>Data e zgjedhur: {selectedDate}</p>
+    <CalendarPicker formattedTodays={formattedTodays} formatDate={formatDate} bind:selectedDate={selectedDate}/>
   </div>
 
-  {#if firstKey != "<!doctype html>"}
-    <DataTable jsonData={jsonData}/>
-  {:else}
-    <p>File doesn't exist</p>
-  {/if}
+  <div class="datatableContainer">
+    {#if firstKey != "<!doctype html>"}
+      <DataTable jsonData={jsonData}/>
+    {:else}
+      <p>File doesn't exist</p>
+    {/if}
+  </div>
 </main>
 
 <style>
+  main{
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+  }
     .topbar{
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      padding: 10px 0px;
+      width: 100%;
+      margin: 0 auto;
       display: flex;
       flex-direction: row;
       align-items: center;
-      gap: 20px;
+      gap: 30px;
+      box-shadow: 0 1px 1px 1px rgba(0,0,0,0.1);
+    }
+
+    .datatableContainer{
+      margin-top: 60px;
+      height: 89vh;
+      width: fit-content;
     }
 
     h1{
       font-family: "Kode Mono";
       font-weight: 700;
+      margin: 0;
     }
 </style>

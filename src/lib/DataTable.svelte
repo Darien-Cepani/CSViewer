@@ -4,7 +4,7 @@
 
     export let jsonData: any[] = [];
 
-    const handler = new DataHandler(jsonData, { rowsPerPage: 50 }); 
+    export let handler = new DataHandler(jsonData, { rowsPerPage: 50 }); 
     const rows = handler.getRows();
 
     afterUpdate(() => {
@@ -12,24 +12,24 @@
     });
 </script>
 
-<Datatable default {handler}>
+<Datatable stickyHeader {handler} >
     <table>
         <thead>
             <tr>
-                <Th {handler} orderBy="Operator">Operator</Th>
-                <Th {handler} orderBy="Klienti">Klienti</Th>
-                <Th {handler} orderBy="Ora e fillimit">Ora e fillimit</Th>
-                <Th {handler} orderBy="Ora e Mbylljes">Ora e Mbylljes</Th>
-                <Th {handler} orderBy="Kohezgjatja">Kohezgjatja</Th>
-                <Th {handler} orderBy="Statusi">Statusi</Th>
+                <Th {handler} orderBy={(row) => row["Operator"]}>Operator</Th>
+                <Th {handler} orderBy={(row) => row["Klienti"]}>Klienti</Th>
+                <Th {handler} orderBy={(row) => row["Ora e fillimit"]}>Ora e fillimit</Th>
+                <Th {handler} orderBy={(row) => row["Ora e Mbylljes"]}>Ora e Mbylljes</Th>
+                <Th {handler} orderBy={(row) => row["Kohezgjatja"]}>Kohezgjatja</Th>
+                <Th {handler} orderBy={(row) => row["Statusi"]}>Statusi</Th>
             </tr>
             <tr>
-                <ThFilter {handler} filterBy="Operator" />
-                <ThFilter {handler} filterBy="Klienti" />
-                <ThFilter {handler} filterBy="Ora e fillimit" />
-                <ThFilter {handler} filterBy="Ora e Mbylljes" />
-                <ThFilter {handler} filterBy="Kohezgjatja" />
-                <ThFilter {handler} filterBy="Statusi" />
+                <ThFilter {handler} filterBy={(row) => row["Operator"]} />
+                <ThFilter {handler} filterBy={(row) => row["Klienti"]} />
+                <ThFilter {handler} filterBy={(row) => row["Ora e fillimit"]} />
+                <ThFilter {handler} filterBy={(row) => row["Ora e Mbylljes"]} />
+                <ThFilter {handler} filterBy={(row) => row["Kohezgjatja"]} />
+                <ThFilter {handler} filterBy={(row) => row["Statusi"]} />
             </tr>
         </thead>
         <tbody>
@@ -58,30 +58,26 @@
 </Datatable>
 
 <style>
-    thead {
+  table{
+    text-align:center;
+		width:100%;
+		border-collapse:separate;
+		border-spacing:0;
+  }
+    thead *{
+        justify-content: center !important;
         background: #fff;
-        
+        position: sticky;
+		inset-block-start: 0;
     }
     tbody td {
         border: 1px solid #f5f5f5;
         padding: 4px 20px;
-    }
-    tbody td:last-child{
-        font-weight: bold;
     }
     tbody tr {
         transition: all, 0.2s;
     }
     tbody tr:hover {
         background: #f5f5f5;
-    }
-    table {
-        border-collapse: separate;
-    border-spacing: 0;
-    }
-
-    thead {
-        position: sticky;
-    inset-block-start: 0;
     }
 </style>

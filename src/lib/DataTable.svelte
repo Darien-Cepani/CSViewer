@@ -3,18 +3,16 @@
     import { afterUpdate } from 'svelte';
 
     export let jsonData: any[] = [];
-    console.log(jsonData);
 
     const handler = new DataHandler(jsonData, { rowsPerPage: 50 }); 
     const rows = handler.getRows();
-    console.log(rows);
 
     afterUpdate(() => {
         handler.setRows(jsonData);
     });
 </script>
 
-<Datatable {handler}>
+<Datatable default {handler}>
     <table>
         <thead>
             <tr>
@@ -48,8 +46,10 @@
                     <td style="color: white; background-color: red">{row['Statusi']}</td>
                     {:else if row['Statusi'] == "NO ANSWER"}
                     <td style="color: black; background-color: lightgray">{row['Statusi']}</td>
-                    {:else}
+                    {:else if row['Statusi'] == "BUSY"}
                     <td style="color: black; background-color: orange">{row['Statusi']}</td>
+                    {:else}
+                    <td style="color: black; background-color: white">{row['Statusi']}</td>
                     {/if}
                 </tr>
             {/each}
@@ -58,11 +58,9 @@
 </Datatable>
 
 <style>
-    * {
-        font-family: "Montserrat";
-    }
     thead {
         background: #fff;
+        
     }
     tbody td {
         border: 1px solid #f5f5f5;
@@ -78,12 +76,12 @@
         background: #f5f5f5;
     }
     table {
-    border-collapse: separate;
+        border-collapse: separate;
     border-spacing: 0;
     }
 
     thead {
         position: sticky;
-        inset-block-start: 0;
+    inset-block-start: 0;
     }
 </style>

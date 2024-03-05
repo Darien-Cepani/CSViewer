@@ -2,6 +2,7 @@ version: "3"
 
 services:
   front:
+    container_name: frontend
     restart: always
     build: .
     ports:

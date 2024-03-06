@@ -1,6 +1,7 @@
 <script lang="ts">
-    import { DataHandler, Datatable, Th, ThFilter } from '@vincjo/datatables'
-    import { afterUpdate } from 'svelte';
+    import { DataHandler, Datatable, Th } from '@vincjo/datatables'
+    import { afterUpdate, onMount } from 'svelte';
+  import ThFilter from './ThFilter.svelte';
 
     export let jsonData: any[] = [];
 
@@ -24,12 +25,12 @@
                 <Th {handler} orderBy={(row) => row["Statusi"]}>Statusi</Th>
             </tr>
             <tr>
-                <ThFilter {handler} filterBy={(row) => row["Operator"]} />
-                <ThFilter {handler} filterBy={(row) => row["Klienti"]} />
-                <ThFilter {handler} filterBy={(row) => row["Ora e fillimit"]} />
-                <ThFilter {handler} filterBy={(row) => row["Ora e Mbylljes"]} />
-                <ThFilter {handler} filterBy={(row) => row["Kohezgjatja"]} />
-                <ThFilter {handler} filterBy={(row) => row["Statusi"]} />
+                <ThFilter data={jsonData} column="Operator" />
+                <ThFilter data={jsonData} column="Klienti" />
+                <ThFilter data={jsonData} />
+                <ThFilter data={jsonData} />
+                <ThFilter data={jsonData} column="Kohezgjatja" />
+                <ThFilter data={jsonData} column="Statusi" />
             </tr>
         </thead>
         <tbody>

@@ -48,7 +48,7 @@
           const formattedDate = formatDate(date); // Ensure date is in correct format
           fetchUrl = '/archive/' + formattedDate.toString() + '.csv';
       } else {
-          fetchUrl = '/live/live.csv';
+          fetchUrl = '/LiveCSV/Master.csv';
       }
       
       // If a date is provided, fetch from archive

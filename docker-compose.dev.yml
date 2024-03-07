@@ -7,4 +7,8 @@ services:
     build: .
     ports:
       - "3000:3000"
+    volumes:
+      - ./public:/app/public
+      - ./src:/app/src
+      - ./index.html:/app/index.html
     command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]

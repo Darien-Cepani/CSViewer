@@ -3,6 +3,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Kode+Mono:wght@400..700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </svelte:head>
 
 <script>
@@ -48,7 +49,7 @@
           const formattedDate = formatDate(date); // Ensure date is in correct format
           fetchUrl = '/archive/' + formattedDate.toString() + '.csv';
       } else {
-          fetchUrl = '/LiveCSV/Master.csv';
+          fetchUrl = '/live/live.csv';
       }
       
       // If a date is provided, fetch from archive
@@ -66,7 +67,7 @@
         });
 
         jsonData = parseResult.data;
-        firstKey = Object.keys(jsonData[0])[0]; // Assuming you need this
+        firstKey = Object.keys(jsonData[0])[0];
 
         return jsonData; // Return the parsed data
     } catch (error) {
@@ -95,7 +96,7 @@
   </div>
 
   <div class="datatableContainer">
-    {#if firstKey != "<!doctype html>"}
+    {#if firstKey != "<!doctype html>" && jsonData.length > 0}
       <DataTable jsonData={jsonData}/>
     {:else}
       <p>File doesn't exist</p>

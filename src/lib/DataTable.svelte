@@ -2,7 +2,9 @@
     import { DataHandler, Datatable, Th, ThFilter } from '@vincjo/datatables'
     import { afterUpdate, onMount } from 'svelte';
     import MultiTagFilter from './MultiTagFilter.svelte';
+    import TimePicker from './TimePicker.svelte';
 
+    export let formatTime;
     export let jsonData: any[] = [];
     export let handler = new DataHandler(jsonData, { rowsPerPage: 50 }); 
     const rows = handler.getRows();
@@ -16,8 +18,40 @@
         return `${hours}h ${minutes}m ${remainingSeconds}s`;
     }
 
+    let startTimeFilter = null;
+    let endTimeFilter = null;
+
+    function updateFilters(isStart, time) {
+        console.log("updateFilters called", isStart, time);
+        if (isStart) {
+            startTimeFilter = time;
+        } else {
+            endTimeFilter = time;
+        }
+        applyFilters();
+    }
+
+    function applyFilters() {
+        console.log("applyFilters called");
+        // Implement your filtering logic here using startTimeFilter and endTimeFilter
+        let filteredData = jsonData.filter((row) => {
+            let startTime = new Date(row.startDateTime);
+            let endTime = new Date(row.endDateTime);
+
+            let matchesStart = !startTimeFilter || startTime >= startTimeFilter;
+            let matchesEnd = !endTimeFilter || endTime <= endTimeFilter;
+
+            console.log("Matches Start" + matchesStart);
+            console.log("Start Time Filter" + startTimeFilter);
+
+            return matchesStart && matchesEnd;
+        });
+            handler.setRows(filteredData); // Changed from jsonData to filteredData
+    }
+
     afterUpdate(() => {
         handler.setRows(jsonData);
+        applyFilters();
     });
 </script>
 
@@ -41,10 +75,10 @@
                     <MultiTagFilter {handler} filterColumn={columns[1]}/>
                 </th>
                 <th>
-                    <ThFilter {handler} filterBy="Ora e fillimit" />
+                    <TimePicker isStart={true} on:change={(e) => updateFilters(true, formatTime(e.detail))} on:change={(e) => console.log(e.detail)}/>
                 </th>
                 <th>
-                    <ThFilter {handler} filterBy="Ora e Mbylljes" />
+                    <TimePicker isStart={false} on:change={(e) => updateFilters(false, formatTime(e.detail))} />
                 </th>
                 <th>
                     <ThFilter {handler} filterBy="Kohezgjatja" />

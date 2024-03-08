@@ -1,7 +1,7 @@
 <script lang="ts">
     import { DataHandler, Datatable, Th, ThFilter } from '@vincjo/datatables'
     import { afterUpdate, onMount } from 'svelte';
-    import CriteriaFilter from './CriteriaFilter.svelte';
+    import MultiTagFilter from './MultiTagFilter.svelte';
 
     export let jsonData: any[] = [];
     export let handler = new DataHandler(jsonData, { rowsPerPage: 50 }); 
@@ -35,10 +35,10 @@
             <tr id="filters">
                 <!-- Insert filters components for each column here -->
                 <th>
-                    <CriteriaFilter {handler} filterColumn={columns[0]}/>
+                    <MultiTagFilter {handler} filterColumn={columns[0]}/>
                 </th>
                 <th>
-                    <CriteriaFilter {handler} filterColumn={columns[1]}/>
+                    <MultiTagFilter {handler} filterColumn={columns[1]}/>
                 </th>
                 <th>
                     <ThFilter {handler} filterBy="Ora e fillimit" />
@@ -50,7 +50,7 @@
                     <ThFilter {handler} filterBy="Kohezgjatja" />
                 </th>
                 <th>
-                    <CriteriaFilter {handler} filterColumn={columns[5]}/>
+                    <MultiTagFilter {handler} filterColumn={columns[5]}/>
                 </th>
             </tr>
         </thead>

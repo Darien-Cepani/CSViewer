@@ -52,4 +52,3 @@ This project does not currently have a specified license.
 ## Notes
 
 * **Customization:** If you intend to use this project, you'll likely want to adjust file paths and potentially other settings as needed to fit your environment.
-* **Details:** Since the repository is private, I couldn't provide highly specific usage instructions or screenshots. A more comprehensive README would be possible if you grant temporary access or describe the UI components in more detail. 

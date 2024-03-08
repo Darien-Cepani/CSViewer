@@ -1,47 +1,55 @@
-# Svelte + Vite
+# CSV Filter
 
-This template should help get you started developing with Svelte in Vite.
+A CSV file reader and filtering tool that allows you to display and interact with CSV files from both a "live" folder (for today's data) and an "archive" folder (for historical data).
 
-## Recommended IDE Setup
+## Technologies Used
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+* Svelte
+* Docker
+* HTML
+* CSS
+* JavaScript
+* Node.js
+* Libraries:
+    * @vincjo/datatables
+    * papaparse
+    * svelte-flatpickr
+    * svelte-select 
+    * flatpickr
+    * vite
 
-## Need an official Svelte framework?
+## Installation Instructions
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+**Prerequisites**
 
-## Technical considerations
+* Node.js
+* Docker (for production environments)
 
-**Why use this over SvelteKit?**
+**Steps**
 
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
+1. Clone the repository: `git clone https://github.com/AlpineEdge/csv-filter.git`
+2. Install dependencies: `npm install`
+3. **Development:**  Run `npm run dev`
+4. **Production:** 
+   *  Build the Docker image: `docker compose build`
+   *  Run the container: `docker compose up -d`
 
-This template contains as little as possible to get started with Vite + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
+## Usage Instructions
 
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
+* The application expects "live" CSV files for the current date to be located in a folder named `live`.
+* Archived CSV files should reside within a folder named `archive`. Archived files must be named according to the format `YYYY-MM-DD.csv`.
+* A datepicker component allows users to select historical data from the archive.
+* The application provides various filtering and ordering options for working with CSV data.
 
-**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
+## Contributing
 
-Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `vite/client` type information.
+This is a private application and contributions are not currently accepted.
 
-**Why include `.vscode/extensions.json`?**
+## License
 
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
+This project does not currently have a specified license.
 
-**Why enable `checkJs` in the JS template?**
+## Notes
 
-It is likely that most cases of changing variable types in runtime are likely to be accidental, rather than deliberate. This provides advanced typechecking out of the box. Should you like to take advantage of the dynamically-typed nature of JavaScript, it is trivial to change the configuration.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/sveltejs/svelte-hmr/tree/master/packages/svelte-hmr#preservation-of-local-state).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```js
-// store.js
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
-```
+* **Customization:** If you intend to use this project, you'll likely want to adjust file paths and potentially other settings as needed to fit your environment.
+* **Details:** Since the repository is private, I couldn't provide highly specific usage instructions or screenshots. A more comprehensive README would be possible if you grant temporary access or describe the UI components in more detail. 

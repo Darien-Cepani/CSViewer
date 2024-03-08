@@ -1,11 +1,20 @@
 <script lang="ts">
     import { DataHandler, Datatable, Th, ThFilter } from '@vincjo/datatables'
-    import { afterUpdate } from 'svelte';
+    import { afterUpdate, onMount } from 'svelte';
+    import CriteriaFilter from './CriteriaFilter.svelte';
 
     export let jsonData: any[] = [];
-
     export let handler = new DataHandler(jsonData, { rowsPerPage: 50 }); 
     const rows = handler.getRows();
+    let columns = Object.keys(jsonData[0]);
+
+    function formatDuration(seconds) {
+        const hours = Math.floor(seconds / 3600); 
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const remainingSeconds = seconds % 60;
+
+        return `${hours}h ${minutes}m ${remainingSeconds}s`;
+    }
 
     afterUpdate(() => {
         handler.setRows(jsonData);
@@ -23,13 +32,26 @@
                 <Th {handler} orderBy={(row) => row["Kohezgjatja"]}>Kohezgjatja</Th>
                 <Th {handler} orderBy={(row) => row["Statusi"]}>Statusi</Th>
             </tr>
-            <tr>
-                <ThFilter {handler} filterBy={(row) => row["Operator"]} />
-                <ThFilter {handler} filterBy={(row) => row["Klienti"]} />
-                <ThFilter {handler} filterBy={(row) => row["Ora e fillimit"]} />
-                <ThFilter {handler} filterBy={(row) => row["Ora e Mbylljes"]} />
-                <ThFilter {handler} filterBy={(row) => row["Kohezgjatja"]} />
-                <ThFilter {handler} filterBy={(row) => row["Statusi"]} />
+            <tr id="filters">
+                <!-- Insert filters components for each column here -->
+                <th>
+                    <CriteriaFilter {handler} filterColumn={columns[0]}/>
+                </th>
+                <th>
+                    <CriteriaFilter {handler} filterColumn={columns[1]}/>
+                </th>
+                <th>
+                    <ThFilter {handler} filterBy="Ora e fillimit" />
+                </th>
+                <th>
+                    <ThFilter {handler} filterBy="Ora e Mbylljes" />
+                </th>
+                <th>
+                    <ThFilter {handler} filterBy="Kohezgjatja" />
+                </th>
+                <th>
+                    <CriteriaFilter {handler} filterColumn={columns[5]}/>
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -39,7 +61,7 @@
                     <td>{row['Klienti']}</td>
                     <td>{row['Ora e fillimit']}</td>
                     <td>{row['Ora e Mbylljes']}</td>
-                    <td>{row['Kohezgjatja']}</td>
+                    <td>{formatDuration(row['Kohezgjatja'])}</td>
                     {#if row['Statusi'] == "ANSWERED"}
                     <td style="color: white; background-color: green">{row['Statusi']}</td>
                     {:else if row['Statusi'] == "FAILED"}

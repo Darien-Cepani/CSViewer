@@ -37,13 +37,34 @@
 
     function applyFilters() {
         if (jsonData.length === 0) return;
+        let filteredData = jsonData;  // Start with initial data
+
         if (jsonData.length > 0) {
             referenceDate = jsonData.length > 0 ? jsonData[0]['Ora e fillimit'] : null;
             referenceDate = new Date(referenceDate);
         }
-        // console.log("applyFilters called");
+
+        // Apply Time Filters
+        if (startTimeFilter) {
+            filteredData = filteredData.filter(row => new Date(row['Ora e fillimit']) >= startTimeFilter); 
+        }
+        if (endTimeFilter) {
+            filteredData = filteredData.filter(row => new Date(row['Ora e Mbylljes']) <= endTimeFilter); 
+        }
+
+        // Apply MultiTag Filters 
+        columns.forEach((column, index) => {
+            const tagFilter = handler.getFilters()[0]; // Assuming one MultiTagFilter per column
+            if (tagFilter) {
+                const selectedTags = tagFilter.getSelected();
+                if (selectedTags.length > 0) {
+                    filteredData = filteredData.filter(row => selectedTags.includes(row[column]));
+                }
+            }
+        });
+        
         // Implement your filtering logic here using startTimeFilter and endTimeFilter
-        let filteredData = jsonData.filter((row) => {
+        filteredData = jsonData.filter((row) => {
             let startTime = new Date(row['Ora e fillimit']);
             let endTime = new Date(row['Ora e Mbylljes']);
 
@@ -53,8 +74,6 @@
             return matchesStart && matchesEnd;
         });
             handler.setRows(filteredData); // Changed from jsonData to filteredData
-            console.log("applyFilters() Start Time Filter: " + startTimeFilter);
-            console.log("applyFilters() End Time Filter: " + endTimeFilter);
     }
 
     function resetFilters(isStart) { // Modify to handle 'isStart'
@@ -63,6 +82,7 @@
         } else {
             endTimeFilter = null;
         }
+        applyFilters();
     }
 
     const handleFilterChange = (event) => {
@@ -91,7 +111,7 @@
             <tr id="filters">
                 <!-- Insert filters components for each column here -->
                 <th>
-                    <MultiTagFilter {handler} filterColumn={columns[0]}/>
+                    <MultiTagFilter {handler} on:filterChanged={applyFilters} filterColumn={columns[0]}/>
                 </th>
                 <th>
                     <MultiTagFilter {handler} filterColumn={columns[1]}/>

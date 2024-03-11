@@ -14,7 +14,7 @@
         minRange = Math.min(...data.map(row => row[filterColumn]));
         maxRange = Math.max(...data.map(row => row[filterColumn]));
         rangeValues = [minRange, maxRange];
-        console.log(rangeValues);
+        // console.log(rangeValues);
     });
 
     // Function to dispatch the filter event

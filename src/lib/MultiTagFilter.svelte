@@ -1,15 +1,23 @@
 <script lang="ts">
   import type { DataHandler } from '@vincjo/datatables'
+  import {createEventDispatcher} from 'svelte'; 
   export let handler: DataHandler;
   export let filterColumn; // Allow customization
   let showMenu = false;
+  const dispatch = createEventDispatcher();
 
   let types = handler.createCalculation(filterColumn).distinct((values) => {
         return values
     })
 
-  const filter = handler.createAdvancedFilter(filterColumn)
-  const selected = filter.getSelected()
+  const filter = handler.createAdvancedFilter(filterColumn);
+  let selected = filter.getSelected();
+
+  function updateFilter(value) { 
+    filter.set(value);
+    selected = filter.getSelected(); // Update the reactive 'selected' variable
+    dispatch('filterChanged');  
+  }
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -37,7 +45,11 @@
       {@const { value, count } = type}
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-static-element-interactions -->
-      <div on:click={() => filter.set(value)} class="btn select" class:active={$selected.includes(value)}>
+      <div 
+        on:click={() => updateFilter(value)}
+        on:click={() => console.log("DataHandler contents AFTER filter change:", handler.getRows())} 
+        class="btn select" 
+        class:active={$selected.includes(value)}>
           <span>{value}</span>
           <code>{count}</code>
       </div>

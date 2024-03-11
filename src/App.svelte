@@ -37,12 +37,19 @@
       return [year, month, day].join('-');
     }
 
+    function formatTime(dateTimeString) {
+      const dateObj = new Date(dateTimeString);
+      return dateObj.toLocaleTimeString([], { hour: '2-digit', minute:'2-digit' });
+    }
+
     /**
      * @type {any[]}
      */
      $: jsonData = [];
+     $: isLoading = false; // For loading state
 
      async function loadCSV(date = null){
+      isLoading = true; // Start loading indicator
       let fetchUrl = "";
 
       if (date) {
@@ -63,11 +70,21 @@
         const parseResult = Papa.parse(csvText, {
             header: true,
             dynamicTyping: true,
-            skipEmptyLines: true
+            skipEmptyLines: true,
+            complete: function(results) {
+              jsonData = results.data.map(row => {
+                // Extract and format time components
+                row['Ora e fillimit'] = new Date(row['Ora e fillimit']);
+                row['Ora e Mbylljes'] = new Date(row['Ora e Mbylljes']);
+                return row; // Return the modified row
+              });
+              jsonData = jsonData;
+            }
         });
 
         jsonData = parseResult.data;
         firstKey = Object.keys(jsonData[0])[0];
+      isLoading = false; // Finished loading
 
         return jsonData; // Return the parsed data
     } catch (error) {
@@ -97,7 +114,9 @@
 
   <div class="datatableContainer">
     {#if firstKey != "<!doctype html>" && jsonData.length > 0}
-      <DataTable jsonData={jsonData}/>
+      <DataTable jsonData={jsonData} formatTime={formatTime}/>
+    {:else if isLoading}
+      <p>Loading...</p>
     {:else}
       <p>File doesn't exist</p>
     {/if}

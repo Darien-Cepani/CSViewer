@@ -51,7 +51,6 @@
     position: relative;
     padding: 5px 15px;
     background-color: rgb(240, 240, 240);
-    border-bottom: 1px solid lightgray;
     cursor: pointer;
     transition: all 250ms ease-in-out;
     margin-bottom: 8px;

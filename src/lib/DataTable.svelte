@@ -3,12 +3,15 @@
     import { afterUpdate, onMount } from 'svelte';
     import MultiTagFilter from './MultiTagFilter.svelte';
     import TimePicker from './TimePicker.svelte';
+    import TimeSpanFilter from './TimeSpanFilter.svelte';
 
     export let formatTime;
     export let jsonData: any[] = [];
     export let handler = new DataHandler(jsonData, { rowsPerPage: 50 }); 
     const rows = handler.getRows();
     let columns = Object.keys(jsonData[0]);
+    let referenceDate = null;
+    let filteredData;
 
     function formatDuration(seconds) {
         const hours = Math.floor(seconds / 3600); 
@@ -22,7 +25,8 @@
     let endTimeFilter = null;
 
     function updateFilters(isStart, time) {
-        console.log("updateFilters called", isStart, time);
+        // console.log("updateFilters called", isStart, time);
+
         if (isStart) {
             startTimeFilter = time;
         } else {
@@ -32,24 +36,42 @@
     }
 
     function applyFilters() {
-        console.log("applyFilters called");
+        if (jsonData.length === 0) return;
+        if (jsonData.length > 0) {
+            referenceDate = jsonData.length > 0 ? jsonData[0]['Ora e fillimit'] : null;
+            referenceDate = new Date(referenceDate);
+        }
+        // console.log("applyFilters called");
         // Implement your filtering logic here using startTimeFilter and endTimeFilter
         let filteredData = jsonData.filter((row) => {
-            let startTime = new Date(row.startDateTime);
-            let endTime = new Date(row.endDateTime);
+            let startTime = new Date(row['Ora e fillimit']);
+            let endTime = new Date(row['Ora e Mbylljes']);
 
             let matchesStart = !startTimeFilter || startTime >= startTimeFilter;
             let matchesEnd = !endTimeFilter || endTime <= endTimeFilter;
 
-            console.log("Matches Start" + matchesStart);
-            console.log("Start Time Filter" + startTimeFilter);
-
             return matchesStart && matchesEnd;
         });
             handler.setRows(filteredData); // Changed from jsonData to filteredData
+            console.log("applyFilters() Start Time Filter: " + startTimeFilter);
+            console.log("applyFilters() End Time Filter: " + endTimeFilter);
+    }
+
+    function resetFilters(isStart) { // Modify to handle 'isStart'
+        if (isStart) {
+            startTimeFilter = null;
+        } else {
+            endTimeFilter = null;
+        }
+    }
+
+    const handleFilterChange = (event) => {
+        const { min, max } = event.detail;
+        handler.setRows(jsonData.filter(item => item["Kohezgjatja"] >= min && item["Kohezgjatja"] <= max));
     }
 
     afterUpdate(() => {
+        if (jsonData.length === 0) return;
         handler.setRows(jsonData);
         applyFilters();
     });
@@ -75,13 +97,13 @@
                     <MultiTagFilter {handler} filterColumn={columns[1]}/>
                 </th>
                 <th>
-                    <TimePicker isStart={true} on:change={(e) => updateFilters(true, formatTime(e.detail))} on:change={(e) => console.log(e.detail)}/>
+                    <TimePicker isStart={true} on:change={(e) => updateFilters(true, e.detail)} referenceDate={referenceDate} on:clear={(e) => resetFilters(e.detail.isStart)}/>
                 </th>
                 <th>
-                    <TimePicker isStart={false} on:change={(e) => updateFilters(false, formatTime(e.detail))} />
+                    <TimePicker isStart={false} on:change={(e) => updateFilters(false, e.detail)} referenceDate={referenceDate} on:clear={(e) => resetFilters(e.detail.isStart)}/>
                 </th>
                 <th>
-                    <ThFilter {handler} filterBy="Kohezgjatja" />
+                    <TimeSpanFilter data={jsonData} on:filterchanged={handleFilterChange} {formatDuration}/>
                 </th>
                 <th>
                     <MultiTagFilter {handler} filterColumn={columns[5]}/>
@@ -93,8 +115,8 @@
                 <tr>
                     <td>{row['Operator']}</td>
                     <td>{row['Klienti']}</td>
-                    <td>{row['Ora e fillimit']}</td>
-                    <td>{row['Ora e Mbylljes']}</td>
+                    <td>{formatTime(row['Ora e fillimit'])}</td>
+                    <td>{formatTime(row['Ora e Mbylljes'])}</td>
                     <td>{formatDuration(row['Kohezgjatja'])}</td>
                     {#if row['Statusi'] == "ANSWERED"}
                     <td style="color: white; background-color: green">{row['Statusi']}</td>

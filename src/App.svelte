@@ -74,11 +74,8 @@
             complete: function(results) {
               jsonData = results.data.map(row => {
                 // Extract and format time components
-                const startTime = formatTime(row['Ora e fillimit']);
-                const endTime = formatTime(row['Ora e Mbylljes']);
-
-                row['Ora e fillimit'] = startTime;
-                row['Ora e Mbylljes'] = endTime;
+                row['Ora e fillimit'] = new Date(row['Ora e fillimit']);
+                row['Ora e Mbylljes'] = new Date(row['Ora e Mbylljes']);
                 return row; // Return the modified row
               });
               jsonData = jsonData;

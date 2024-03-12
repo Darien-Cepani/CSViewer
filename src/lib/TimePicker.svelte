@@ -32,9 +32,8 @@
     // Function to handle clearing the time
     function clearTime() {
       selectedTime = null;
-      referenceDate = null;
-      dispatch('change', selectedTime);  
-      dispatch('clear', { isStart }); // Pass 'isStart' information
+      dispatch('change', selectedTime);
+      dispatch('clearTime', { isStart }); // Pass 'isStart' information
     }
   </script>
   

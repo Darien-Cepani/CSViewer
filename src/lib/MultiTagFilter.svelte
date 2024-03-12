@@ -1,15 +1,22 @@
 <script lang="ts">
   import type { DataHandler } from '@vincjo/datatables'
+  import { createEventDispatcher } from 'svelte';
   export let handler: DataHandler;
   export let filterColumn; // Allow customization
   let showMenu = false;
+
+  const dispatch = createEventDispatcher();
+  let selected = [];
 
   let types = handler.createCalculation(filterColumn).distinct((values) => {
         return values
     })
 
-  const filter = handler.createAdvancedFilter(filterColumn)
-  const selected = filter.getSelected()
+  function clearTags(){
+    selected.length = 0;
+    dispatch("clear", { column: filterColumn, tags: selected });
+  }
+
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -23,8 +30,8 @@
       <i class="fa-solid fa-chevron-down"></i>
     {/if}
 
-    {#if $selected.length > 0}
-        <button class="clear" on:click|stopPropagation={() => filter.clear()}>
+    {#if selected.length > 0}
+        <button class="clear" on:click|stopPropagation={clearTags}>
             Clear
         </button>
     {/if}
@@ -37,7 +44,15 @@
       {@const { value, count } = type}
       <!-- svelte-ignore a11y-click-events-have-key-events -->
       <!-- svelte-ignore a11y-no-static-element-interactions -->
-      <div on:click={() => filter.set(value)} class="btn select" class:active={$selected.includes(value)}>
+      <div on:click={() => { 
+        if (selected.includes(value)) {
+            selected = selected.filter(tag => tag !== value);
+        } else {
+            selected = [...selected, value];
+        }
+        dispatch('change', { column: filterColumn, tags: selected });
+      }}
+      class="btn select" class:active={selected.includes(value)}>
           <span>{value}</span>
           <code>{count}</code>
       </div>
@@ -48,26 +63,19 @@
 <style>
 
 .filterDropdown{
-    position: relative;
-    padding: 5px 15px;
-    background-color: rgb(240, 240, 240);
-    cursor: pointer;
-    transition: all 250ms ease-in-out;
-    margin-bottom: 8px;
-    font-size: 12px;
+  display: table-cell;
+  padding: 7px 20px;
+  border: 1px solid lightgray;
   }
 
   article {
-      position: absolute;
+      position: fixed;
       border-radius: 4px;
-      width: 100%;
+      margin: 5px 0 0 -15px;
+      width: 170px;
       background: #fafafa;
       border: 1px solid #e0e0e0;
-  }
-
-  .filterDropdown:hover{
-    background-color: rgb(207, 207, 207);
-    cursor: pointer;
+      transition: all 250ms ease-in-out;
   }
 
   button {

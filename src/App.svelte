@@ -128,6 +128,7 @@
     display: flex;
     flex-direction: column;
     width: fit-content;
+    align-items: center;
   }
     .topbar{
       position: absolute;
@@ -147,8 +148,11 @@
     }
 
     .datatableContainer{
-      margin-top: 60px;
-      height: 89vh;
+      position: relative;
+      height: 90vh;
+      margin-top: 50px;
+      max-height: 90vh;
+      min-height: 0;
       width: fit-content;
     }
 

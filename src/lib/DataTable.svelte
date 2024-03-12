@@ -3,15 +3,20 @@
     import { afterUpdate, onMount } from 'svelte';
     import MultiTagFilter from './MultiTagFilter.svelte';
     import TimePicker from './TimePicker.svelte';
+    import moment from 'moment';
     import TimeSpanFilter from './TimeSpanFilter.svelte';
 
     export let formatTime;
     export let jsonData: any[] = [];
+    let originalData: any[] = []; // To store original data
     export let handler = new DataHandler(jsonData, { rowsPerPage: 50 }); 
     const rows = handler.getRows();
     let columns = Object.keys(jsonData[0]);
-    let referenceDate = null;
-    let filteredData;
+    let referenceDate = jsonData.length > 0 ? jsonData[0]['Ora e fillimit'] : null;
+    let filteredData = [];
+    let activeFilters = [];   // Store active filters
+    let workingData;
+    $: filteredData, updateTable();
 
     function formatDuration(seconds) {
         const hours = Math.floor(seconds / 3600); 
@@ -21,59 +26,114 @@
         return `${hours}h ${minutes}m ${remainingSeconds}s`;
     }
 
-    let startTimeFilter = null;
-    let endTimeFilter = null;
+    let startTimeFilter = moment(referenceDate).startOf('day');
+    let endTimeFilter = moment(referenceDate).endOf('day');
 
-    function updateFilters(isStart, time) {
-        // console.log("updateFilters called", isStart, time);
-
-        if (isStart) {
-            startTimeFilter = time;
+    function startEndFilter(isStart, time) {
+         // Add this to reset filtering if a filter is cleared   
+         if (!time) { 
+            if (isStart) {
+                startTimeFilter = moment(referenceDate).startOf('day');
+            } else {
+                endTimeFilter = moment(referenceDate).endOf('day');
+            }
         } else {
-            endTimeFilter = time;
+            if (isStart) {
+                startTimeFilter = time;
+            } else {
+                endTimeFilter = time;
+            }
+        }
+
+        const existingFilterIndex = activeFilters.findIndex(f => f.type === 'timerange');
+        console.log(existingFilterIndex);
+        if (existingFilterIndex !== -1) {
+            activeFilters[existingFilterIndex] = { type: 'timerange', startTime: startTimeFilter, endTime: endTimeFilter };
+        } else {
+            activeFilters.push({ type: 'timerange', startTime: startTimeFilter, endTime: endTimeFilter });
         }
         applyFilters();
     }
 
-    function applyFilters() {
-        if (jsonData.length === 0) return;
-        if (jsonData.length > 0) {
-            referenceDate = jsonData.length > 0 ? jsonData[0]['Ora e fillimit'] : null;
-            referenceDate = new Date(referenceDate);
-        }
-        // console.log("applyFilters called");
-        // Implement your filtering logic here using startTimeFilter and endTimeFilter
-        let filteredData = jsonData.filter((row) => {
-            let startTime = new Date(row['Ora e fillimit']);
-            let endTime = new Date(row['Ora e Mbylljes']);
+    function tagFilter(e) {
+        console.log('tagFilter event received', e)
+        const { column, tags } = e;
 
-            let matchesStart = !startTimeFilter || startTime >= startTimeFilter;
-            let matchesEnd = !endTimeFilter || endTime <= endTimeFilter;
+        // Find if a filter for this column already exists
+        const existingFilterIndex = activeFilters.findIndex(f => f.type === 'tag' && f.column === column);
 
-            return matchesStart && matchesEnd;
-        });
-            handler.setRows(filteredData); // Changed from jsonData to filteredData
-            console.log("applyFilters() Start Time Filter: " + startTimeFilter);
-            console.log("applyFilters() End Time Filter: " + endTimeFilter);
-    }
-
-    function resetFilters(isStart) { // Modify to handle 'isStart'
-        if (isStart) {
-            startTimeFilter = null;
+        if (tags.length === 0) {
+            if (existingFilterIndex !== -1) {
+                // Remove the filter for this column
+                activeFilters.splice(existingFilterIndex, 1); 
+            }
+            filteredData = [...originalData]; // Reset when the last tag for this column is removed
         } else {
-            endTimeFilter = null;
+            if (existingFilterIndex !== -1) {
+                // Update the existing filter
+                activeFilters[existingFilterIndex].values = tags; 
+            } else {
+                // Add a new filter
+                activeFilters.push({ type: 'tag', column, values: tags });
+            }
+        }
+        applyFilters(); 
+  }
+
+  const timespanFilter = (event) => {
+        const { min, max } = event.detail;
+        handler.setRows(jsonData.filter(row => row["Kohezgjatja"] >= min && row["Kohezgjatja"] <= max));
+    }
+
+  function applyFilters() {
+    workingData = [...jsonData]; // Start with a copy of original data
+    activeFilters.forEach(filter => {
+        if (filter.type === 'tag') {
+      workingData = workingData.filter(row => filter.values.includes(String(row[filter.column]))); 
+    } else if (filter.type === 'timerange') {
+        workingData = workingData.filter(row => {
+          let startTime = new Date(row['Ora e fillimit']);
+          let endTime = new Date(row['Ora e Mbylljes']);
+
+          // Updated logic
+        let matchesStart = true; // Always match if startTime is null
+        let matchesEnd = true; // Always match if endTime is null
+
+        if (filter.startTime) { 
+            matchesStart = startTime >= filter.startTime;
+        }
+        if (filter.endTime) {
+            matchesEnd = endTime <= filter.endTime;
+        }
+
+          return matchesStart && matchesEnd;
+        });
+      }
+    });
+    filteredData = workingData; 
+    updateTable();
+  }
+
+    function updateTable() {
+        if (activeFilters.length > 0) { // Check if there are any active filters
+            if (filteredData.length > 0) {
+            handler.setRows(filteredData);
+            } else {
+            handler.setRows([]); // Clear the Datatable 
+            // ... Display a "No Results" message ...
+            }
+        } else {
+            // Initial Display (no filters applied)
+            handler.setRows(jsonData); 
         }
     }
 
-    const handleFilterChange = (event) => {
-        const { min, max } = event.detail;
-        handler.setRows(jsonData.filter(item => item["Kohezgjatja"] >= min && item["Kohezgjatja"] <= max));
-    }
+    
 
     afterUpdate(() => {
         if (jsonData.length === 0) return;
-        handler.setRows(jsonData);
-        applyFilters();
+        originalData = [...jsonData]; // Store original on initial load
+        applyFilters(); 
     });
 </script>
 
@@ -91,22 +151,22 @@
             <tr id="filters">
                 <!-- Insert filters components for each column here -->
                 <th>
-                    <MultiTagFilter {handler} filterColumn={columns[0]}/>
+                    <MultiTagFilter {handler} filterColumn={columns[0]} on:change={(e) => tagFilter(e.detail)} on:clear={(e) => tagFilter(e.detail)}/>
                 </th>
                 <th>
-                    <MultiTagFilter {handler} filterColumn={columns[1]}/>
+                    <MultiTagFilter {handler} filterColumn={columns[1]} on:change={(e) => tagFilter(e.detail)} on:clear={(e) => tagFilter(e.detail)}/>
                 </th>
                 <th>
-                    <TimePicker isStart={true} on:change={(e) => updateFilters(true, e.detail)} referenceDate={referenceDate} on:clear={(e) => resetFilters(e.detail.isStart)}/>
+                    <TimePicker isStart={true} on:change={(e) => startEndFilter(true, e.detail)} referenceDate={referenceDate} on:clearTime={applyFilters}/>
                 </th>
                 <th>
-                    <TimePicker isStart={false} on:change={(e) => updateFilters(false, e.detail)} referenceDate={referenceDate} on:clear={(e) => resetFilters(e.detail.isStart)}/>
+                    <TimePicker isStart={false} on:change={(e) => startEndFilter(false, e.detail)} referenceDate={referenceDate} on:clearTime={applyFilters}/>
                 </th>
                 <th>
-                    <TimeSpanFilter data={jsonData} on:filterchanged={handleFilterChange} {formatDuration}/>
+                    <TimeSpanFilter data={jsonData} on:filterchanged={timespanFilter} {formatDuration}/>
                 </th>
                 <th>
-                    <MultiTagFilter {handler} filterColumn={columns[5]}/>
+                    <MultiTagFilter {handler} filterColumn={columns[5]} on:change={(e) => tagFilter(e.detail)} on:clear={(e) => tagFilter(e.detail)}/>
                 </th>
             </tr>
         </thead>
@@ -143,10 +203,11 @@
 		border-spacing:0;
   }
     thead *{
-        justify-content: center !important;
-        background: #fff;
+        background-color: white;
         position: sticky;
-		inset-block-start: 0;
+    }
+    tbody{
+        overflow: scroll;
     }
     tbody td {
         border: 1px solid #f5f5f5;
@@ -154,6 +215,18 @@
     }
     tbody tr {
         transition: all, 0.2s;
+        z-index: 100;
+    }
+    tr#filters *{
+        padding: 5px 15px;
+        background-color: rgb(240, 240, 240);
+        cursor: pointer;
+        transition: all 250ms ease-in-out;
+        font-size: 12px;
+    }
+    tr#filters *:hover{
+        background-color: lightgray;
+        cursor: pointer;
     }
     tbody tr:hover {
         background: #f5f5f5;
